@@ -1,32 +1,34 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-echo "====== 🚀 n8n + Traefik 安装脚本 开始 ======"
+echo "====== 🚀 n8n + Traefik 自动部署开始 ======"
 
 # 获取用户输入
-read -p "请输入你的域名（例如 n8n.example.com）: " DOMAIN
-read -p "请输入你的邮箱（用于 Let's Encrypt 申请证书）: " EMAIL
-read -p "请输入用于登录 n8n 的用户名: " N8N_USER
-read -p "请输入用于登录 n8n 的密码: " N8N_PASS
+read -p "🌐 请输入你的域名（例如 n8n.example.com）: " DOMAIN
+read -p "📧 请输入你的邮箱（用于 Let's Encrypt 申请证书）: " EMAIL
+read -p "👤 请输入用于登录 n8n 的用户名: " N8N_USER
+read -p "🔒 请输入用于登录 n8n 的密码: " N8N_PASS
 
 # 安装 Docker 和 Docker Compose（如未安装）
 if ! command -v docker &> /dev/null; then
-    echo "🔧 正在安装 Docker..."
+    echo "🔧 安装 Docker 中..."
     curl -fsSL https://get.docker.com | bash
 fi
 
-if ! command -v docker-compose &> /dev/null; then
-    echo "🔧 正在安装 Docker Compose..."
+if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
+    echo "🔧 安装 Docker Compose..."
+    apt-get update
     apt-get install -y docker-compose
 fi
 
-# 创建项目目录
+# 创建工作目录
 mkdir -p ~/n8n-docker && cd ~/n8n-docker
 
-# 创建 Traefik 配置文件
+# 创建 Traefik 配置文件夹
 mkdir -p traefik
 
+# 写入 Traefik 配置文件
 cat <<EOF > traefik/traefik.yml
 entryPoints:
   web:
@@ -42,15 +44,21 @@ certificatesResolvers:
   letsencrypt:
     acme:
       email: "$EMAIL"
-      storage: acme.json
+      storage: /letsencrypt/acme.json
       httpChallenge:
         entryPoint: web
 EOF
 
+# 创建 acme.json 并设权限
 touch traefik/acme.json
 chmod 600 traefik/acme.json
 
-# 创建 Docker Compose 文件
+# 创建 n8n 数据目录并修复权限
+mkdir -p n8n_data
+chown -R 1000:1000 n8n_data
+chmod -R 700 n8n_data
+
+# 写入 Docker Compose 配置
 cat <<EOF > docker-compose.yml
 version: "3.7"
 
@@ -96,7 +104,11 @@ services:
 EOF
 
 # 启动服务
-echo "📦 正在启动 n8n 和 Traefik..."
+echo "🚀 启动 n8n 和 Traefik..."
 docker-compose up -d
 
-echo "✅ 安装完成！请访问 https://$DOMAIN 进行使用。"
+echo ""
+echo "🎉 部署成功！请访问 👉 https://$DOMAIN"
+echo "🔐 登录账号: $N8N_USER"
+echo "🔑 登录密码: $N8N_PASS"
+echo "📁 项目目录：~/n8n-docker"
