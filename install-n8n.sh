@@ -92,8 +92,8 @@ services:
       - N8N_HOST=$DOMAIN
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
-      - WEBHOOK_URL=https://$DOMAIN
-      - VUE_APP_URL_BASE_API=https://$DOMAIN
+      - WEBHOOK_URL=https://$DOMAIN/
+      - VUE_APP_URL_BASE_API=https://$DOMAIN/
       - NODE_ENV=production
     labels:
       - "traefik.enable=true"
