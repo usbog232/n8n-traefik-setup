@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-echo "====== 🚀 n8n + Traefik 自动部署开始 ======"
+echo "====== 🚀 小技提示：n8n + Traefik 自动部署开始 ======"
 
 # 获取用户输入
 read -p "🌐 请输入你的域名（例如 n8n.example.com）: " DOMAIN
@@ -12,13 +12,13 @@ read -p "🔒 请输入用于登录 n8n 的密码: " N8N_PASS
 
 # 安装 Docker（如未安装）
 if ! command -v docker &> /dev/null; then
-    echo "🔧 安装 Docker 中..."
+    echo "🔧 小技提示：安装 Docker 中..."
     curl -fsSL https://get.docker.com | bash
 fi
 
 # 安装 Docker Compose Plugin（适配新版）
 if ! docker compose version &> /dev/null; then
-    echo "🔧 安装 Docker Compose 插件中..."
+    echo "🔧 小技提示：安装 Docker Compose 插件中..."
     apt-get update
     apt-get install -y docker-compose-plugin
 fi
