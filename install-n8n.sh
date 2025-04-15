@@ -92,9 +92,9 @@ services:
       - N8N_HOST=$DOMAIN
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
-      - NODE_ENV=production
-      - WEBHOOK_TUNNEL_URL=https://$DOMAIN
+      - WEBHOOK_URL=https://$DOMAIN
       - VUE_APP_URL_BASE_API=https://$DOMAIN
+      - NODE_ENV=production
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.n8n.rule=Host(\`$DOMAIN\`)"
