@@ -16,9 +16,9 @@ if ! command -v docker &> /dev/null; then
     curl -fsSL https://get.docker.com | bash
 fi
 
-# 检查 docker compose 是否可用（新版命令）
+# 安装 Docker Compose Plugin（适配新版）
 if ! docker compose version &> /dev/null; then
-    echo "🔧 安装 docker compose 插件中..."
+    echo "🔧 安装 Docker Compose 插件中..."
     apt-get update
     apt-get install -y docker-compose-plugin
 fi
@@ -29,7 +29,7 @@ mkdir -p ~/n8n-docker && cd ~/n8n-docker
 # 创建 Traefik 配置文件夹
 mkdir -p traefik
 
-# 写入 Traefik 配置文件
+# 写入 Traefik 配置
 cat <<EOF > traefik/traefik.yml
 entryPoints:
   web:
@@ -50,19 +50,17 @@ certificatesResolvers:
         entryPoint: web
 EOF
 
-# 创建 acme.json 并设权限
+# 创建 acme.json 并设置权限
 touch traefik/acme.json
 chmod 600 traefik/acme.json
 
-# 创建 n8n 数据目录并修复权限
+# 创建 n8n 数据目录
 mkdir -p n8n_data
 chown -R 1000:1000 n8n_data
 chmod -R 700 n8n_data
 
-# 写入 Docker Compose 配置
+# 写入 docker-compose 配置
 cat <<EOF > docker-compose.yml
-version: "3.7"
-
 services:
   traefik:
     image: traefik:v2.9
@@ -95,6 +93,8 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
       - NODE_ENV=production
+      - WEBHOOK_TUNNEL_URL=https://$DOMAIN
+      - VUE_APP_URL_BASE_API=https://$DOMAIN
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.n8n.rule=Host(\`$DOMAIN\`)"
