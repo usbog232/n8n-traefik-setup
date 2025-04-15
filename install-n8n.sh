@@ -10,16 +10,17 @@ read -p "📧 请输入你的邮箱（用于 Let's Encrypt 申请证书）: " EM
 read -p "👤 请输入用于登录 n8n 的用户名: " N8N_USER
 read -p "🔒 请输入用于登录 n8n 的密码: " N8N_PASS
 
-# 安装 Docker 和 Docker Compose（如未安装）
+# 安装 Docker（如未安装）
 if ! command -v docker &> /dev/null; then
     echo "🔧 安装 Docker 中..."
     curl -fsSL https://get.docker.com | bash
 fi
 
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    echo "🔧 安装 Docker Compose..."
+# 检查 docker compose 是否可用（新版命令）
+if ! docker compose version &> /dev/null; then
+    echo "🔧 安装 docker compose 插件中..."
     apt-get update
-    apt-get install -y docker-compose
+    apt-get install -y docker-compose-plugin
 fi
 
 # 创建工作目录
@@ -105,7 +106,7 @@ EOF
 
 # 启动服务
 echo "🚀 启动 n8n 和 Traefik..."
-docker-compose up -d
+docker compose up -d
 
 echo ""
 echo "🎉 部署成功！请访问 👉 https://$DOMAIN"
