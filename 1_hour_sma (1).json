@@ -1,0 +1,658 @@
+{
+  "name": "1 hour+sma",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "61984442-5bda-42b7-9857-95504d376125",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        220
+      ],
+      "webhookId": "3e6f3793-1deb-4f9f-a07c-d081d1211385",
+      "credentials": {
+        "telegramApi": {
+          "id": "hIRaaAjhIdI4Vd4r",
+          "name": "cointest"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "userInputRaw",
+              "value": "={{$json[\"message\"][\"text\"]}}"
+            },
+            {
+              "name": "userInputLower",
+              "value": "={{$json[\"message\"][\"text\"].toLowerCase()}}"
+            },
+            {
+              "name": "chatId",
+              "value": "={{$json[\"message\"][\"chat\"][\"id\"]}}"
+            },
+            {
+              "name": "userInputUpper",
+              "value": "={{ $json[\"message\"][\"text\"].trim().toUpperCase().replace(/[^A-Z0-9]/g, \"\") + \"USDT\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ce491d23-cd2a-4987-a20d-349ad612925d",
+      "name": "Set Variables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -960,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json[\"isValid\"]}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "d8c6559b-17ce-4d2e-ac4d-e456d3092355",
+      "name": "IF Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json[\"chatId\"]}}",
+        "text": "=✅ 已识别为 {{$json[\"userInputLower\"]}}，正在进行加密货币分析...",
+        "additionalFields": {}
+      },
+      "id": "26c361ae-47e5-43f1-aed0-3a2bdfa33a68",
+      "name": "Valid Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        20
+      ],
+      "webhookId": "8d7bcfbf-577e-459c-b98b-adb9fe625dc7",
+      "credentials": {
+        "telegramApi": {
+          "id": "hIRaaAjhIdI4Vd4r",
+          "name": "cointest"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json[\"chatId\"]}}",
+        "text": "⚠️ 暂不支持该币种，请输入如 eth、btc、sol、arb...",
+        "additionalFields": {}
+      },
+      "id": "bed3654e-b33c-4267-9c0c-d27c66a4c9c8",
+      "name": "Invalid Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        320
+      ],
+      "webhookId": "981b5b39-b10a-4bb4-bb02-5a7e6df89ad8",
+      "credentials": {
+        "telegramApi": {
+          "id": "hIRaaAjhIdI4Vd4r",
+          "name": "cointest"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// ✅ Check Token in Array 节点代码更新为前 200 的主流币种支持验证\nconst validTokens = [\n  \"btc\", \"eth\", \"bnb\", \"sol\", \"usdt\", \"usdc\", \"xrp\", \"doge\", \"ton\", \"ada\",\n  \"avax\", \"shib\", \"dot\", \"trx\", \"link\", \"wbtc\", \"matic\", \"uni\", \"bch\", \"ltc\",\n  \"near\", \"leo\", \"cro\", \"dai\", \"icp\", \"apt\", \"fil\", \"steth\", \"xmr\", \"atom\",\n  \"okb\", \"etc\", \"imx\", \"hbar\", \"rndr\", \"egld\", \"vet\", \"mantle\", \"ar\", \"ftm\",\n  \"kas\", \"op\", \"gala\", \"aave\", \"inj\", \"algo\", \"qnt\", \"flow\", \"sui\", \"tao\",\n  \"mina\", \"jito\", \"theta\", \"mkr\", \"snx\", \"bgb\", \"rpl\", \"kava\", \"chz\", \"xdai\",\n  \"zil\", \"ens\", \"blur\", \"bat\", \"one\", \"magic\", \"xec\", \"ocean\", \"render\", \"zrx\",\n  \"woo\", \"cvx\", \"amp\", \"band\", \"comp\", \"celo\", \"lpt\", \"yfi\", \"num\", \"ankr\",\n  \"cake\", \"bnt\", \"ziliqa\", \"ond\", \"nexo\", \"sfp\", \"qtum\", \"ckb\", \"rvn\", \"ogn\",\n  \"waves\", \"hnt\", \"storj\", \"api3\", \"fet\", \"agix\", \"lrc\", \"bico\", \"nxra\", \"bal\",\n  \"skl\", \"strk\", \"fxs\", \"hashflow\", \"movr\", \"bonk\", \"santos\", \"gas\", \"super\",\n  \"ssv\", \"joe\", \"astrafer\", \"ach\", \"ogn\", \"ogn\", \"ela\", \"nmr\", \"polyx\", \"id\",\n  \"mdx\", \"raca\", \"vra\", \"nkn\", \"xyo\", \"ever\", \"quack\", \"pundix\", \"glm\", \"spell\",\n  \"dar\", \"vtho\", \"tru\", \"trb\", \"dydx\", \"dexe\", \"umb\", \"inj\", \"mxc\", \"rep\",\n  \"barn\", \"pros\", \"lina\", \"data\", \"lina\", \"gmx\", \"sxp\", \"bel\", \"vite\", \"asto\",\n  \"ali\", \"oxt\", \"boba\", \"waxp\", \"reef\", \"nav\", \"xcn\", \"kmd\", \"krl\", \"slp\"\n];\n\nconst userInput = $json[\"userInputLower\"] || \"\";\nconst chatId = $json[\"chatId\"] || \"\";\n\nreturn [\n  {\n    json: {\n      chatId,\n      userInputLower: userInput,\n      isValid: validTokens.includes(userInput)\n    }\n  }\n];"
+      },
+      "id": "770cd4b2-817b-4277-84a3-4a6a81021c7d",
+      "name": "Check Token in Array",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.aiPrompt }}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        500,
+        360
+      ],
+      "id": "84b7d1d3-c050-4a06-9154-08ad6d17f8e4",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-r1:1.5b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        600,
+        600
+      ],
+      "id": "f95b306e-a0fe-42ac-8cc6-232d1d1548ea",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "xyFHlhcsAfJf9g6B",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$node[\"Set Variables\"].json[\"chatId\"]}}",
+        "text": "=📊 AI 分析报告如下：\\n\\n{{$node[\"Basic LLM Chain\"].json[\"text\"]}}\n",
+        "additionalFields": {}
+      },
+      "name": "Send Analysis To Telegram1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        860,
+        360
+      ],
+      "id": "c3cc26a7-4de7-4aab-a199-3927b74afef3",
+      "webhookId": "80428058-b37f-4644-97d4-dcb8ac5d5308",
+      "credentials": {
+        "telegramApi": {
+          "id": "hIRaaAjhIdI4Vd4r",
+          "name": "cointest"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-pro-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        440,
+        140
+      ],
+      "id": "11845a4a-b19d-47a8-8ad5-c029e5169e10",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Nm2skPr2xCGEvgZw",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.aiPrompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        420,
+        -40
+      ],
+      "id": "1fa2ea89-40f4-4239-8ce1-e6559ef23765",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{$node[\"Set Variables\"].json[\"chatId\"]}}",
+        "text": "=🤖 AI 分析报告如下：\\n\\n{{ $node[\"Code\"].json[\"text\"] }}\n\n",
+        "additionalFields": {
+          "parse_mode": "=HTML"
+        }
+      },
+      "name": "Send Analysis To Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -80
+      ],
+      "id": "346c48b4-ea3d-4423-9fd1-4f9ebdf38971",
+      "webhookId": "80428058-b37f-4644-97d4-dcb8ac5d5308",
+      "credentials": {
+        "telegramApi": {
+          "id": "hIRaaAjhIdI4Vd4r",
+          "name": "cointest"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output;\n\n// HTML 转义\nconst escapeHTML = str => str\n  .replace(/&/g, \"&amp;\")\n  .replace(/</g, \"&lt;\")\n  .replace(/>/g, \"&gt;\");\n\n// 处理加粗和换行 → 注意 `<br/>` 闭合标签\nconst htmlText = escapeHTML(raw)\n  .replace(/\\*\\*(.*?)\\*\\*/g, \"<b>$1</b>\")\n  .replace(/\\\\n/g, \"<br/>\");\n\nreturn [\n  {\n    json: {\n      text: htmlText\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        -80
+      ],
+      "id": "5a5f679a-c8c5-4d5a-aa4c-a8623718ccdd",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex"
+      },
+      "id": "904772b1-3eb4-4777-ab5d-7cc392a0272b",
+      "name": "Merge 2 (1D+1W)4",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex"
+      },
+      "id": "5d3d1825-7446-44fb-82c4-36f52bfb31d2",
+      "name": "Merge 2 (1D+1W)5",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        80,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex"
+      },
+      "id": "aeecf552-f828-4130-829a-fabce8ed1ce2",
+      "name": "Merge 2 (1D+1W)6",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex"
+      },
+      "id": "7f7e4f7d-1ad7-43f1-bca5-e8fe2c33cf6f",
+      "name": "Merge 2 (1D+1W)",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        180,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// ✅ 原始 Bybit K线数据\nconst klineList = $json.result?.list || [];\n\n// 收盘价与时间戳（从新到旧）\nconst closes = klineList.map(k => parseFloat(k[4]));\nconst timestamps = klineList.map(k => parseInt(k[0]));\nconst limit = closes.length;\n\n// ✅ 转为从旧到新（用于SMA计算）\nconst closesReversed = closes.slice().reverse();\nconst timestampsReversed = timestamps.slice().reverse();\n\n// ✅ SMA计算函数（滑动平均）\nfunction calculateSMA(data, period) {\n  const sma = [];\n  for (let i = 0; i < data.length; i++) {\n    if (i < period - 1) {\n      sma.push(null);\n    } else {\n      const slice = data.slice(i - period + 1, i + 1);\n      const sum = slice.reduce((a, b) => a + b, 0);\n      sma.push(parseFloat((sum / period).toFixed(4)));\n    }\n  }\n  return sma;\n}\n\n// ✅ 计算 SMA 值（并反转回来）\nconst sma14 = calculateSMA(closesReversed, 14).reverse();\nconst sma28 = calculateSMA(closesReversed, 28).reverse();\nconst sma60 = calculateSMA(closesReversed, 60).reverse();\nconst sma120 = calculateSMA(closesReversed, 120).reverse();\n\n// ✅ UTC 时间格式化（精确到小时）\nfunction formatUTCWithHour(ms) {\n  const d = new Date(ms);\n  const year = d.getUTCFullYear();\n  const month = String(d.getUTCMonth() + 1).padStart(2, '0');\n  const day = String(d.getUTCDate()).padStart(2, '0');\n  const hour = String(d.getUTCHours()).padStart(2, '0');\n  const minute = String(d.getUTCMinutes()).padStart(2, '0');\n  return `${year}-${month}-${day} ${hour}:${minute}`;\n}\n\n// ✅ 输出结果（index: 最新为1）\nconst smaList = closes.map((close, i) => ({\n  index: i + 1,\n  date: formatUTCWithHour(timestamps[i]), // UTC+0，精确到小时\n  close,\n  SMA14: sma14[i],\n  SMA28: sma28[i],\n  SMA60: sma60[i],\n  SMA120: sma120[i],\n}));\n\nreturn [\n  {\n    json: {\n      smaList,\n      total: limit,\n      note: \"UTC+0, with hour-level timestamp\"\n    }\n  }\n];\n"
+      },
+      "name": "sma14 28 60 120 1h",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -40
+      ],
+      "id": "4f0a3eb8-42e5-4e9d-a0e5-a982a44f5f60"
+    },
+    {
+      "parameters": {
+        "functionCode": "// 获取 Bybit K 线列表（二维数组）\nconst klineList = $json.result.list;\n\n// 收盘价和时间戳（原数据是从新到旧）\nconst closesOriginal = klineList.map(k => parseFloat(k[4]));\nconst timeOriginal = klineList.map(k => new Date(parseInt(k[0])));\n\n// ✅ 修正：反转为从旧到新计算\nconst closes = closesOriginal.slice().reverse();\nconst timestamps = timeOriginal.slice().reverse();\n\nconst limit = closes.length;\n\n// ✅ EMA 计算函数（标准指数移动平均）\nfunction EMA(data, period) {\n  const k = 2 / (period + 1);\n  const emaArray = [data[0]];\n  for (let i = 1; i < data.length; i++) {\n    emaArray.push(data[i] * k + emaArray[i - 1] * (1 - k));\n  }\n  return emaArray;\n}\n\n// ✅ 格式化 UTC 时间到 “YYYY-MM-DD HH:00”\nfunction formatUTCDateToHour(dateObj) {\n  const iso = dateObj.toISOString(); // e.g., \"2025-04-20T01:00:00.000Z\"\n  const [date, time] = iso.split(\"T\");\n  const hour = time.split(\":\")[0];\n  return `${date} ${hour}:00`;\n}\n\n// ✅ MACD 计算核心流程\nconst ema12 = EMA(closes, 12);\nconst ema26 = EMA(closes, 26);\nconst difArray = ema12.map((val, i) => val - ema26[i]);\nconst deaArray = EMA(difArray, 9);\nconst macdArray = difArray.map((val, i) => val - deaArray[i]);\n\n// ✅ 输出（index 0 是最新）\nconst macdList = difArray.map((_, i) => ({\n  index: limit - i,  // 最新的是 index 1\n  date: formatUTCDateToHour(timestamps[i]), // 转为 UTC 小时级别格式\n  close: closes[i],\n  DIF: difArray[i].toFixed(4),\n  DEA: deaArray[i].toFixed(4),\n  histogram: macdArray[i].toFixed(4)\n})).reverse(); // ✅ 最终再反转回来，保证 index 0 是最新\n\nreturn [\n  {\n    json: {\n      macdList,\n      total: limit\n    }\n  }\n];\n"
+      },
+      "name": "MACD 1h",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        120
+      ],
+      "id": "0a031616-b865-4f4c-acaa-a126eb047e3a"
+    },
+    {
+      "parameters": {
+        "functionCode": "// ✅ 获取 K 线数据\nconst klineList = $json.result.list;\n\n// ✅ 提取收盘价和时间戳，并反转为从旧到新\nconst closes = klineList.map(k => parseFloat(k[4])).reverse();\nconst timestamps = klineList.map(k => parseInt(k[0])).reverse();\n\nconst total = closes.length;\n\n// ✅ 时间格式函数（UTC+0 精确到小时）\nfunction formatUTCHour(ms) {\n  const d = new Date(ms);\n  const year = d.getUTCFullYear();\n  const month = String(d.getUTCMonth() + 1).padStart(2, '0');\n  const day = String(d.getUTCDate()).padStart(2, '0');\n  const hour = String(d.getUTCHours()).padStart(2, '0');\n  const minute = String(d.getUTCMinutes()).padStart(2, '0');\n  return `${year}-${month}-${day} ${hour}:${minute}`;\n}\n\n// ✅ 计算 RSI（使用 RMA 平滑）\nfunction calculateRSI(closes, timestamps, period) {\n  const result = [];\n  let avgGain = 0, avgLoss = 0;\n\n  // 初始平均值（SMA）\n  for (let i = 1; i <= period; i++) {\n    const diff = closes[i] - closes[i - 1];\n    if (diff >= 0) avgGain += diff;\n    else avgLoss -= diff;\n  }\n\n  avgGain /= period;\n  avgLoss /= period;\n\n  let rs = avgLoss === 0 ? 100 : avgGain / avgLoss;\n  let rsi = 100 - (100 / (1 + rs));\n\n  result.push({\n    index: period + 1,\n    date: formatUTCHour(timestamps[period]),\n    close: closes[period],\n    RSI: rsi.toFixed(2)\n  });\n\n  // 递推（RMA 平滑）\n  for (let i = period + 1; i < closes.length; i++) {\n    const diff = closes[i] - closes[i - 1];\n    const gain = diff > 0 ? diff : 0;\n    const loss = diff < 0 ? -diff : 0;\n\n    avgGain = (avgGain * (period - 1) + gain) / period;\n    avgLoss = (avgLoss * (period - 1) + loss) / period;\n\n    rs = avgLoss === 0 ? 100 : avgGain / avgLoss;\n    rsi = 100 - (100 / (1 + rs));\n\n    result.push({\n      index: i + 1,\n      date: formatUTCHour(timestamps[i]),\n      close: closes[i],\n      RSI: rsi.toFixed(2)\n    });\n  }\n\n  return result.reverse(); // ✅ 最新在最上\n}\n\n// ✅ 输出 RSI14 和 RSI30\nconst rsi14 = calculateRSI(closes, timestamps, 14);\nconst rsi30 = calculateRSI(closes, timestamps, 30);\n\nreturn [\n  {\n    json: {\n      rsi14,\n      rsi30,\n      method: \"RMA\",\n      total\n    }\n  }\n];\n"
+      },
+      "name": "RSI 1h",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        280
+      ],
+      "id": "c841fbd5-ac98-468d-ba3d-a01903dd286d"
+    },
+    {
+      "parameters": {
+        "functionCode": "// 获取完整的 K 线数据\nconst klineList = $json.result.list;\nconst symbol = $json.result.symbol || \"UNKNOWN\";\n\n// 自动推断 base asset（如 ETHUSDT → ETH）\nconst baseAsset = symbol.replace(/USDT$/i, \"\") || \"BaseAsset\";\n\n// 自动适配周期数量\nconst limit = klineList.length;\n\n// 初始化数组\nconst volumesBase = [];\nconst volumesUSDT = [];\nconst timestamps = [];\nconst detailedList = [];\n\n// 时间格式（UTC 精确到小时）\nfunction formatUTCHour(ms) {\n  const d = new Date(ms);\n  const year = d.getUTCFullYear();\n  const month = String(d.getUTCMonth() + 1).padStart(2, '0');\n  const day = String(d.getUTCDate()).padStart(2, '0');\n  const hour = String(d.getUTCHours()).padStart(2, '0');\n  return `${year}-${month}-${day} ${hour}:00`;\n}\n\n// 遍历每根K线\nfor (let i = 0; i < limit; i++) {\n  const item = klineList[i];\n  const timestamp = parseInt(item[0]);\n  const open = parseFloat(item[1]);\n  const close = parseFloat(item[4]);\n  const volumeBase = parseFloat(item[5]);\n  const avgPrice = (open + close) / 2;\n  const volumeUSDT = volumeBase * avgPrice;\n\n  volumesBase.push(volumeBase);\n  volumesUSDT.push(volumeUSDT);\n  timestamps.push(timestamp);\n\n  detailedList.push({\n    index: i + 1,\n    timeUTC: formatUTCHour(timestamp),\n    open,\n    close,\n    volumeBase,\n    volumeUSDT: volumeUSDT.toFixed(2),\n  });\n}\n\n// 计算总量与均值\nconst totalVolumeBase = volumesBase.reduce((a, b) => a + b, 0);\nconst avgVolumeBase = totalVolumeBase / volumesBase.length;\n\nconst totalVolumeUSDT = volumesUSDT.reduce((a, b) => a + b, 0);\nconst avgVolumeUSDT = totalVolumeUSDT / volumesUSDT.length;\n\nreturn [\n  {\n    json: {\n      baseAsset,\n      sampleSize: limit,\n      totalVolumeBase: totalVolumeBase.toFixed(2),\n      avgVolumeBase: avgVolumeBase.toFixed(2),\n      totalVolumeUSDT: totalVolumeUSDT.toFixed(2),\n      avgVolumeUSDT: avgVolumeUSDT.toFixed(2),\n      detailedVolumes: detailedList\n    }\n  }\n];\n"
+      },
+      "name": "Volume 1h",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        420
+      ],
+      "id": "beed1cd7-6775-464c-88f8-aeccaa6805bd"
+    },
+    {
+      "parameters": {
+        "jsCode": "const lang = $json.lang || \"zh\";\n\n// ✅ 从 JSON 中提取所有需要的数据\nconst kline = ($json.result?.list || []).slice().reverse();\nconst macdList = ($json.macdList || []).slice().reverse();\nconst rsiList = ($json.rsi14 || []).slice().reverse();\nconst smaList = ($json.smaList || []).slice().reverse();  // ✅ 引入 SMA\n\nconst symbol = $json.symbol || \"UNKNOWN\";\nconst baseAsset = symbol.replace(/USDT|USDC|BUSD|TUSD|DAI|USD$/, \"\");\nconst limit = kline.length;\n\n// ✅ 最新时间（UTC+0 精确小时）\nconst latestDate = new Date(parseInt(kline[limit - 1][0])).toISOString().replace(\"T\", \" \").slice(0, 16);\n\n// ✅ 日期映射（UTC+0 小时）\nconst dateMap = kline.map(k =>\n  new Date(parseInt(k[0])).toISOString().replace(\"T\", \" \").slice(0, 16)\n);\n\n// ✅ 格式化函数：根据值大小决定保留的小数位数\nconst formatValue = (value) => {\n  const numValue = Number(value); // Ensure the value is a number\n  if (isNaN(numValue)) return \"N/A\"; // Return 'N/A' if the value is not a number\n\n  if (numValue === 0) {\n    return \"0\";  // If value is 0, return \"0\"\n  } else if (numValue > 1 || numValue < -1) {\n    return numValue.toFixed(2);  // If value is >1 or < -1, keep 2 decimal places\n  } else {\n    return numValue.toFixed(7);  // If value is between -1 and 1, keep 7 decimal places\n  }\n};\n\n// ✅ K线数据文本拼接\nlet totalVolUSDT = 0;\nconst klineText = kline.map((item, i) => {\n  const date = dateMap[i];\n  const open = parseFloat(item[1]);\n  const high = parseFloat(item[2]);\n  const low = parseFloat(item[3]);\n  const close = parseFloat(item[4]);\n  const vol = parseFloat(item[5]);\n  const avgPrice = (open + close) / 2;\n  const volUSDT = avgPrice * vol;\n  totalVolUSDT += volUSDT;\n\n  return lang === \"zh\"\n    ? `${date}：开盘${open}U，最高${high}U，最低${low}U，收盘${close}U，成交量≈${volUSDT.toFixed(2)}USDT`\n    : `${date}: Open ${open}U, High ${high}U, Low ${low}U, Close ${close}U, Volume ≈${volUSDT.toFixed(2)}USDT`;\n}).join(\"\\n\");\n\nconst avgVolUSDT = totalVolUSDT / limit;\n\n// ✅ MACD 输出\nconst macdText = macdList.length > 0\n  ? (lang === \"zh\"\n    ? `【MACD 指标】\\n` + macdList.map((item, i) =>\n        `${dateMap[i]}：DIF ${formatValue(item.DIF)}，DEA ${formatValue(item.DEA)}，柱状图 ${formatValue(item.histogram)}`\n      ).join(\"\\n\")\n    : `【MACD】\\n` + macdList.map((item, i) =>\n        `${dateMap[i]}: DIF ${formatValue(item.DIF)}, DEA ${formatValue(item.DEA)}, Histogram ${formatValue(item.histogram)}`\n      ).join(\"\\n\"))\n  : (lang === \"zh\" ? \"【MACD 指标】\\n暂无数据\" : \"【MACD】\\nN/A\");\n\n// ✅ RSI 输出\nconst rsiText = rsiList.length > 0\n  ? (lang === \"zh\"\n    ? `【RSI 指标】\\n` + rsiList.map(item =>\n        `${item.date}：收盘价 ${item.close}U，RSI ${formatValue(item.RSI)}`\n      ).join(\"\\n\")\n    : `【RSI】\\n` + rsiList.map(item =>\n        `${item.date}: Close ${item.close}U, RSI ${formatValue(item.RSI)}`\n      ).join(\"\\n\"))\n  : (lang === \"zh\" ? \"【RSI 指标】\\n暂无数据\" : \"【RSI】\\nN/A\");\n\n// ✅ SMA 输出\nconst smaText = smaList.length > 0\n  ? (lang === \"zh\"\n    ? `【SMA 均线】\\n` + smaList.map(item =>\n        `${item.date}：收盘价 ${item.close}U，SMA14 ${formatValue(item.SMA14)}，SMA28 ${formatValue(item.SMA28)}，SMA60 ${formatValue(item.SMA60)}，SMA120 ${formatValue(item.SMA120)}`\n      ).join(\"\\n\")\n    : `【SMA】\\n` + smaList.map(item =>\n        `${item.date}: Close ${item.close}U, SMA14 ${formatValue(item.SMA14)}, SMA28 ${formatValue(item.SMA28)}, SMA60 ${formatValue(item.SMA60)}, SMA120 ${formatValue(item.SMA120)}`\n      ).join(\"\\n\"))\n  : (lang === \"zh\" ? \"【SMA 均线】\\n暂无数据\" : \"【SMA】\\nN/A\");\n\n// ✅ 成交量输出\nconst volumeText = lang === \"zh\"\n  ? `【成交量统计】\\n周期：${limit} 根K线\\n单位：成交额（估算，USDT）\\n平均成交量：${avgVolUSDT.toFixed(2)}U`\n  : `【Volume Stats】\\nPeriod: ${limit} candles\\nUnit: Estimated USDT\\nAvg Volume: ${avgVolUSDT.toFixed(2)}U`;\n\n// ✅ 分析说明\nconst promptHeader = lang === \"zh\"\n  ? `请使用简体中文回答以下问题：\\n\\n👉 数据说明：以下 K 线数据按时间「从旧到新」排列，第一行为最早的时间，最后一行是当前最新数据。\\n\\n请基于以下「1小时级别」数据（共 ${limit} 条），进行市场技术分析：`\n  : `Please answer in English:\\n\\n👉 Note: The K-line data is sorted from oldest to newest. The first row is the oldest, and the last row is the most recent.\\n\\nBased on the following 1-HOUR data (total ${limit} entries), provide technical market trend analysis:`;\n\n// ✅ 分析任务：1小时专用\nconst askText = lang === \"zh\"\n  ? `请你基于以上「1小时级别」数据，从技术面的角度进行分析：\n- 报告 ${latestDate} 当前最新价格\n- 判断短期趋势（上涨/下跌/震荡）\n- 是否出现短线买入/卖出信号\n- RSI 是否出现 >80 超买或 <20 超卖\n- MACD 是否短线背离\n- SMA 是否拐头、排列、粘合\n- K 线是否出现尾盘拉升、短线突破或盘整信号\n- 当前是否适合快进快出操作`\n  : `Based on the above 1-HOUR data:\n- Report the latest price as of ${latestDate}\n- Identify short-term trend (bullish/bearish/sideways)\n- Check for short-term buy/sell signals\n- Evaluate RSI for overbought (>80) or oversold (<20)\n- Identify short-term MACD divergence\n- Look for SMA signals like crossover, alignment, or consolidation\n- Identify breakout/consolidation or strong end-of-bar action\n- Evaluate if this zone is suitable for scalping or fast trades`;\n\nreturn [\n  {\n    json: {\n      aiPrompt: `${promptHeader}\\n\\n【K线数据】\\n${klineText}\\n\\n${macdText}\\n\\n${rsiText}\\n\\n${smaText}\\n\\n${volumeText}\\n\\n${askText}`\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        120
+      ],
+      "id": "c70ceea7-d019-4478-8716-d268aa46cf58",
+      "name": "Format Prompt 1h"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.bybit.com/v5/market/kline?category=linear&symbol={{$node[\"Set Variables\"].json[\"userInputUpper\"]}}&interval=60&limit=300",
+        "options": {}
+      },
+      "name": "Fetch Kline 1h",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        20
+      ],
+      "id": "d53971ee-3621-4db4-8dbb-389f00a12e51"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Variables": {
+      "main": [
+        [
+          {
+            "node": "Check Token in Array",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Valid?": {
+      "main": [
+        [
+          {
+            "node": "Valid Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalid Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Response": {
+      "main": [
+        [
+          {
+            "node": "Fetch Kline 1h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Token in Array": {
+      "main": [
+        [
+          {
+            "node": "IF Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send Analysis To Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send Analysis To Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge 2 (1D+1W)4": {
+      "main": [
+        [
+          {
+            "node": "Merge 2 (1D+1W)5",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge 2 (1D+1W)5": {
+      "main": [
+        [
+          {
+            "node": "Merge 2 (1D+1W)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge 2 (1D+1W)6": {
+      "main": [
+        [
+          {
+            "node": "Merge 2 (1D+1W)5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge 2 (1D+1W)": {
+      "main": [
+        [
+          {
+            "node": "Format Prompt 1h",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sma14 28 60 120 1h": {
+      "main": [
+        [
+          {
+            "node": "Merge 2 (1D+1W)6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MACD 1h": {
+      "main": [
+        [
+          {
+            "node": "Merge 2 (1D+1W)6",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RSI 1h": {
+      "main": [
+        [
+          {
+            "node": "Merge 2 (1D+1W)4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Volume 1h": {
+      "main": [
+        [
+          {
+            "node": "Merge 2 (1D+1W)4",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Format Prompt 1h": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Kline 1h": {
+      "main": [
+        [
+          {
+            "node": "Volume 1h",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSI 1h",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MACD 1h",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "sma14 28 60 120 1h",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge 2 (1D+1W)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "87791e2a-e177-4869-b7c6-f414a51b1100",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a39d36c7743e7678f61d20c8c1b31ab7ab72a22d50653111a4fd7897da14076c"
+  },
+  "id": "IY7p3LMjnsKkTbPR",
+  "tags": []
+}
